@@ -40,6 +40,10 @@ public class User implements UserDetails {
 
     public User(){}
 
+    public User(long id) {
+        this.id = id;
+    }
+
     public User(String firstName, String lastName, int age, String email, String password, Set<Role> roles) {
         this.firstName = firstName;
         this.lastName = lastName;
@@ -161,6 +165,7 @@ public class User implements UserDetails {
         result = 31 * result + (getRoles() != null ? getRoles().hashCode() : 0);
         return result;
     }
+
     @Override
     public String toString() {
         Collection<?> res = null;
@@ -168,11 +173,4 @@ public class User implements UserDetails {
         return String.format("%s", s);
     }
 
-    public String printSet(Set<Role> roles) {
-        String result = "";
-        for(Role el: roles){
-            result += el.toString() + " ";
-        }
-        return result;
-    }
 }

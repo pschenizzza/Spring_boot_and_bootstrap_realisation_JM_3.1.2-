@@ -24,7 +24,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
             httpServletResponse.sendRedirect("/user");
         } else if (authentication.getAuthorities().stream()
                 .anyMatch((Predicate<GrantedAuthority>) grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"))) {
-            httpServletResponse.sendRedirect("/admin/home");
+            httpServletResponse.sendRedirect("/admin/");
         }
     }
 }

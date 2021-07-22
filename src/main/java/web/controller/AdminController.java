@@ -1,6 +1,8 @@
 package web.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,9 +13,10 @@ import web.model.User;
 import web.service.UserService;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-@Controller
+@RestController
 @RequestMapping("/admin")
 public class AdminController {
     private UserService userService;
@@ -23,59 +26,51 @@ public class AdminController {
         this.userService = userService;
     }
 
+
     @GetMapping("/home")
-    public String blogMain(Model model) {
+    public ResponseEntity<List<User>> showUsers() {
+        return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
+    }
+
+    @GetMapping("/infoAdmin")
+    public ResponseEntity<User> showInfoAdmin() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        model.addAttribute("user", user);
-        model.addAttribute("roles", user.printSet(user.getRoles()));
-
-        Iterable<User> users = userService.getAllUsers();
-        model.addAttribute("users", users);
-        return "users";
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
-    @GetMapping("/delete/{id}")
-    public String deleteUser(@PathVariable("id") long id) {
-        userService.deleteUser(id);
-        return "redirect:/admin/home";
-    }
-
-    @GetMapping("/adduser")
-    public String addUser() {
-        return "addUser";
-    }
-
-    @PostMapping("/adduser")
-    public String addUserPost(@ModelAttribute("user") User userForm, @RequestParam(name = "role", required = false) String role) {
+    @PostMapping("/addUser")
+    public ResponseEntity<User> addUser(@RequestBody User userForm) {
         Set<Role> roleSet = new HashSet<>();
-        roleSet.add(userService.getRoleById(2L));
-        if ((role != null) && (role.equals("admin"))) {
+        roleSet.add(userService.getRoleById(1L));
+
+        if (userForm.getRoles().iterator().next().getName().contains("ROLE_ADMIN")) {
+            roleSet.add(userService.getRoleById(2L));
+        } else if (userForm.getRoles().iterator().next().getName().contains("ROLE_USER")) {
             roleSet.add(userService.getRoleById(1L));
         }
         userForm.setRoles(roleSet);
-        userService.saveUser(new User(userForm.getFirstName(),userForm.getLastName(),userForm.getAge(),
-                userForm.getEmail(), userForm.getPassword(), userForm.getRoles()));
-        return "redirect:/admin/home";
+        userService.saveUser(userForm);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @GetMapping("/edit/{id}")
-    public ModelAndView editPage(@PathVariable("id") long id, ModelAndView modelAndView) {
-        User userById = userService.getUserById(id);
-        modelAndView.setViewName("editUser");
-        modelAndView.addObject("user", userById);
-        return modelAndView;
+    @DeleteMapping("/delete")
+    public ResponseEntity<List<User>> deleteUser(@RequestBody User user) {
+        userService.deleteUser(user.getId());
+        return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
     }
 
-    @PostMapping("/edit/{id}")
-    public String updateUserPost(@ModelAttribute("user") User userForm,
-                                 @RequestParam(name = "role", required = false) String role) {
+    @PutMapping("/edit")
+    public ResponseEntity<List<User>> editUser(@RequestBody User userForm) {
         Set<Role> roleSet = new HashSet<>();
-        roleSet.add(userService.getRoleById(2L));
-            if ((role != null) && (role.equals("admin"))) {
+        roleSet.add(userService.getRoleById(1L));
+
+        if (userForm.getRoles().iterator().next().getName().contains("ROLE_ADMIN")) {
+            roleSet.add(userService.getRoleById(2L));
+        } else if (userForm.getRoles().iterator().next().getName().contains("ROLE_USER")) {
             roleSet.add(userService.getRoleById(1L));
         }
         userForm.setRoles(roleSet);
         userService.editUser(userForm);
-        return "redirect:/admin/home";
+        return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
     }
 }

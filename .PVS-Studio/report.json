@@ -1,4 +1,30 @@
 {
   "version": 2,
-  "warnings": []
+  "warnings": [
+    {
+      "code": "V6008",
+      "cwe": 476,
+      "sastId": "CERT-EXP01-J",
+      "level": 1,
+      "positions": [
+        {
+          "file": "C:\\Users\\m14\\Desktop\\Java\\Spring_boot_realisation_JM_3.1.1-master\\src\\main\\java\\web\\model\\User.java",
+          "line": 172,
+          "endLine": 172,
+          "column": 20,
+          "endColumn": 22,
+          "navigation": {
+            "previousLine": 214138875,
+            "currentLine": 2118972055,
+            "nextLine": -1272350521,
+            "columns": 87
+          }
+        }
+      ],
+      "message": "Null dereference of \u0027res\u0027.",
+      "projects": [],
+      "favorite": false,
+      "falseAlarm": false
+    }
+  ]
 }
